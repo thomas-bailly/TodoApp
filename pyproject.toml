@@ -1,0 +1,33 @@
+[project]
+name = "todoapp"
+version = "0.1.0"
+description = "A production-ready RESTful API developed with FastAPI to demonstrate data access and management. Includes full CRUD operations, secure password hashing using Argon2, token-based security, serving as the backend for data-centric applications."
+authors = [
+    {name = "thomas-bailly",email = "thomas.bailly1698@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi (>=0.118.0,<0.119.0)",
+    "uvicorn (>=0.37.0,<0.38.0)",
+    "pydantic (>=2.11.9,<3.0.0)",
+    "sqlalchemy (>=2.0.43,<3.0.0)",
+    "python-multipart (>=0.0.20,<0.0.21)",
+    "argon2-cffi (>=25.1.0,<26.0.0)",
+    "python-jose[cryptography] (>=3.5.0,<4.0.0)",
+    "alembic (>=1.16.5,<2.0.0)",
+    "streamlit (>=1.50.0,<2.0.0)",
+    "httpx (>=0.28.1,<0.29.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=8.4.2,<9.0.0)",
+    "pytest-asyncio (>=1.2.0,<2.0.0)"
+]
