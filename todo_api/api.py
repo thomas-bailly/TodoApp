@@ -2,12 +2,13 @@ from fastapi import FastAPI
 from todo_api.database import Base, engine
 from todo_api import models
 
+from todo_api.config import settings
 
 # FastAPI application initialization
 app = FastAPI(
-    title="TodoApp RESTful API",
-    description="A RESTful API for managing user tasks.",
-    version="0.1.0"
+    title=settings.app_name,
+    description=settings.app_description,
+    version=settings.app_version
 )
 
 Base.metadata.create_all(bind=engine)
