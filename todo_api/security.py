@@ -20,10 +20,10 @@ def hash_password(password:str) -> str:
     """Hashes a plaintext password using the configured Argon2 hasher."""
     return password_hasher.hash(password)
 
-def verify_password(password: str, hash_password: str) -> bool:
+def verify_password(password: str, hashed_password: str) -> bool:
     """Verifies a plaintext password against an Argon2 hash."""
     try:
-        password_hasher.verify(hash_password, password)
+        password_hasher.verify(hashed_password, password)
         return True
     except VerifyMismatchError:
         return False
