@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     app_name: str = "TodoApp RESTful API"
     app_version: str = "0.1.0"
     app_description: str = "A RESTful API for managing user tasks."
+    debug: bool = False
     
     # Database
     database_url: str = "sqlite:///./todosapp.db"
