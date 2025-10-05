@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 
 
 class CreateUserRequest(BaseModel):
@@ -17,7 +17,7 @@ class CreateUserRequest(BaseModel):
         role: User role, typically 'user' or 'admin' (3-20 characters)
     """   
     username: str = Field(min_length=3, max_length=50)
-    email: str = Field(min_length=5, max_length=100)
+    email: EmailStr = Field(min_length=5, max_length=100)
     password: str = Field(min_length=6, max_length=100)
     first_name: str | None = Field(default=None, min_length=1, max_length=50)
     last_name: str | None = Field(default=None, min_length=1, max_length=50)
