@@ -33,3 +33,9 @@ dev = [
     "pytest (>=8.4.2,<9.0.0)",
     "pytest-asyncio (>=1.2.0,<2.0.0)"
 ]
+
+[tool.poetry]
+name = "todoapp"
+packages = [
+    {include = "todo_api"}
+]
