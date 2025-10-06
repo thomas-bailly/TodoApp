@@ -44,7 +44,7 @@ class Message(BaseModel):
     """
     message: str
     
-class Token(BaseModel):
+class TokenOutput(BaseModel):
     """Schema for JWT authentification token response.
     
     Attributes:
