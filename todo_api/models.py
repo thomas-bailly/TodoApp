@@ -2,7 +2,7 @@ from todo_api.database import Base
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 
 
-class Users(Base):
+class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -16,7 +16,7 @@ class Users(Base):
     phone_number = Column(String, nullable=True)
 
 
-class Todos(Base):
+class Todo(Base):
     __tablename__ = "todos"
 
     id = Column(Integer, primary_key=True, index=True)
