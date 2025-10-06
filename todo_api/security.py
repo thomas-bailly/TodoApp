@@ -1,9 +1,16 @@
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
+from fastapi import HTTPException, status
 from todo_api.config import settings
 from datetime import datetime, timedelta, timezone
-from jose import jwt
+from jose import jwt, JWTError
 
+# =========================== Credential exception =========================== #
+credential_exception = HTTPException(
+    status_code=status.HTTP_401_UNAUTHORIZED,
+    detail="Could not validate user.",
+    headers={"WWW-Authenticate": "Bearer"}
+)
 
 # ================================== Argon2 ================================== #
 # Initialize the PasswordHasher using settings loaded from the application's 
@@ -46,4 +53,19 @@ def create_access_token(username: str, user_id:int, role:str, expire_delta: time
     expire = datetime.now(timezone.utc) + expire_delta
     to_encode.update({'exp':expire})
     return jwt.encode(to_encode, settings.secret_key, settings.algorithm)
+
+def decode_access_token(token: str) -> dict:
+    try:
+        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+        
+        username: str = payload.get('sub')
+        user_id: int = payload.get('id')
+        role: str = payload.get('role')
+        
+        if (username is None) or (user_id is None) or (role is None):
+            raise credential_exception
+        
+        return {"username": username, "id": user_id, "role": role}
     
+    except JWTError:
+        raise credential_exception
