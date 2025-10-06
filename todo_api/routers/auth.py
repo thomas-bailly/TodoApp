@@ -6,7 +6,7 @@ from datetime import timedelta
 from todo_api.dependencies import db_dependency
 from todo_api.models import User
 from todo_api.schema import CreateUserRequest, Message, TokenOutput
-from todo_api.security import hash_password, verify_password, create_access_token
+from todo_api.security import hash_password, verify_password, create_access_token, credential_exception
 from todo_api.config import settings
 
 
@@ -71,8 +71,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     """
     user = authenticate_user(form_data.username, form_data.password, db)
     if user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Could not validate user.")
+        raise credential_exception
         
     token = create_access_token(
         username=user.username,
