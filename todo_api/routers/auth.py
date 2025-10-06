@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status, HTTPException, Path
 from todo_api.dependencies import db_dependency
-from todo_api.models import Users
+from todo_api.models import User
 from todo_api.schema import CreateUserRequest, Message, Token
 from todo_api.security import hash_password, verify_password, create_access_token
 
@@ -24,7 +24,7 @@ async def register_user(user_request: CreateUserRequest, db: db_dependency) -> M
     user_dict["hashed_password"] = hash_password(user_dict.pop("password"))
     
     # Create a new user
-    new_user = Users(**user_dict)
+    new_user = User(**user_dict)
 
     db.add(new_user)
     db.commit()
