@@ -1,4 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, HTTPException, status
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import IntegrityError
 from todo_api.database import Base, engine
 from todo_api import models
 
@@ -12,6 +14,23 @@ app = FastAPI(
 )
 
 Base.metadata.create_all(bind=engine)
+
+@app.exception_handler(IntegrityError)
+async def integrety_error_handler(resquest: Request, exc: IntegrityError) -> JSONResponse:
+    detail = "Database integrity error."
+    
+    if "UNIQUE constraint failed" in str(exc.orig):
+        if "username" in str(exc.orig):
+            detail = "Username already exists."
+        elif "email" in str(exc.orig):
+            detail = "Email already exists."
+        else:
+            detail = "Unique constraint violation."
+            
+    return JSONResponse(
+        status_code=status.HTTP_409_CONFLICT,
+        content={"detail": detail}
+    )
 
 @app.get("/", tags=["Root"])
 async def root():
