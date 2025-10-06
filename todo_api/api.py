@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError
 from todo_api.database import Base, engine
 from todo_api import models
+from todo_api.routers.auth import router as auth_router
 
 from todo_api.config import settings
 
@@ -35,3 +36,5 @@ async def integrety_error_handler(resquest: Request, exc: IntegrityError) -> JSO
 @app.get("/", tags=["Root"])
 async def root():
     return {'message': 'Welcome to the Todo App API. Visit /docs for documentation.'}
+
+app.include_router(auth_router)
