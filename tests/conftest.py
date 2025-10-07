@@ -64,4 +64,36 @@ def override_get_db(engine):
         yield from get_transactional_session(engine)
     return _override_get_db
 
-
+# ========================== Test Client Fixture ============================= #
+@pytest.fixture(scope="function")
+def client(engine):
+    """Fixture to provide a FastAPI TestClient with overridden dependencies."""
+    
+    # Override the get_db dependency to use the test database session
+    app.dependency_overrides[get_db] = override_get_db(engine)
+    
+    with TestClient(app) as test_client:
+        yield test_client
+    
+    # Clean up overrides after the test
+    app.dependency_overrides.clear()
+    
+# ============================ User Fixture ================================== #
+@pytest.fixture(scope="function")
+def test_user(db):
+    """Fixture to create a test user in the database."""
+    
+    user = User(
+        username="TestUser",
+        email="test-user@email.com",
+        first_name="Test",
+        last_name="User",
+        role="admin",
+        phone_number="+33612345678",
+        hashed_password=hash_password("testpassword")
+    )
+    
+    db.add(user)
+    db.flush()
+    db.refresh(user)
+    yield user
