@@ -1,6 +1,7 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
 
 from todo_api.database import Base
@@ -18,17 +19,23 @@ def engine():
     SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL,
-        connect_args={"check_same_thread": False}
+        connect_args={"check_same_thread": False},
+        pool=StaticPool
     )
     
     Base.metadata.create_all(bind=engine)
-    return engine
+    yield engine
 
-@pytest.fixture(scope="function")
-def test_db(engine):
-    """Creates an isolated DB session for each test. 
-    
+def get_transactional_session(engine):
+    """Creates an isolated DB session for each test.
+
     Transactions are rolled back at the end (quick cleanup).
+    
+    Args:
+        engine: The SQLAlchemy engine instance provided by the engine fixture.
+
+    Yields:
+        db: A SQLAlchemy session object scoped to the test function.
     """
     
     connection = engine.connect()
@@ -42,6 +49,19 @@ def test_db(engine):
         yield db
     finally:
         # Cancels the transaction to delete all data created by the test
+        db.close()
         transaction.rollback()
         connection.close()
         
+@pytest.fixture(scope="function")
+def db(engine):
+    """Fixture to provide a SQLAlchemy session for a test function."""
+    yield from get_transactional_session(engine)
+
+def override_get_db(engine):
+    """Dependency override to use the test database session."""
+    def _override_get_db():
+        yield from get_transactional_session(engine)
+    return _override_get_db
+
+
