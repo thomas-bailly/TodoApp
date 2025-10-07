@@ -20,13 +20,14 @@ def engine():
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL,
         connect_args={"check_same_thread": False},
-        pool=StaticPool
+        poolclass=StaticPool
     )
     
     Base.metadata.create_all(bind=engine)
     yield engine
-
-def get_transactional_session(engine):
+    
+@pytest.fixture(scope="function")
+def db(engine):
     """Creates an isolated DB session for each test.
 
     Transactions are rolled back at the end (quick cleanup).
@@ -37,46 +38,33 @@ def get_transactional_session(engine):
     Yields:
         db: A SQLAlchemy session object scoped to the test function.
     """
-    
     connection = engine.connect()
     transaction = connection.begin()
-    
-    # Local session for this connection and transaction
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=connection)
     db = TestingSessionLocal()
-    
     try:
         yield db
     finally:
-        # Cancels the transaction to delete all data created by the test
+        # This is the only session that calls rollback() and cleans up.
         db.close()
         transaction.rollback()
         connection.close()
         
 @pytest.fixture(scope="function")
-def db(engine):
-    """Fixture to provide a SQLAlchemy session for a test function."""
-    yield from get_transactional_session(engine)
+def client(db):
+    """Fixture to provide a TestClient with the same injected session."""
 
-def override_get_db(engine):
-    """Dependency override to use the test database session."""
-    def _override_get_db():
-        yield from get_transactional_session(engine)
-    return _override_get_db
+    def override_get_db_for_client():
+        # The override simply returns the existing session, not a new one.
+        yield db 
 
-# ========================== Test Client Fixture ============================= #
-@pytest.fixture(scope="function")
-def client(engine):
-    """Fixture to provide a FastAPI TestClient with overridden dependencies."""
-    
-    # Override the get_db dependency to use the test database session
-    app.dependency_overrides[get_db] = override_get_db(engine)
+    app.dependency_overrides[get_db] = override_get_db_for_client
     
     with TestClient(app) as test_client:
         yield test_client
     
-    # Clean up overrides after the test
     app.dependency_overrides.clear()
+    
     
 # ============================ User Fixture ================================== #
 @pytest.fixture(scope="function")
