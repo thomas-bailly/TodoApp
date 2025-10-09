@@ -2,6 +2,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+from sqlalchemy.exc import PendingRollbackError, InvalidRequestError
 from fastapi.testclient import TestClient
 
 from todo_api.database import Base
@@ -45,9 +46,17 @@ def db(engine):
     try:
         yield db
     finally:
-        # This is the only session that calls rollback() and cleans up.
+        
+        try:
+            db.rollback()
+        except (PendingRollbackError, InvalidRequestError):
+            pass
+        
         db.close()
-        transaction.rollback()
+        
+        if transaction.is_active:
+            transaction.rollback()
+        
         connection.close()
         
 @pytest.fixture(scope="function")
