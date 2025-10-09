@@ -39,11 +39,11 @@ class UpdateUserRequest(BaseModel):
     """Schema for updating user data. All fields are optional and nullable.
     
     Attributes:
-        username: New unique username (optional).
-        email: New valid email address (optional).
-        first_name: New optional first name.
-        last_name: New optional last name.
-        phone_number: New optional phone number.
+        username: New unique username.
+        email: New valid email address.
+        first_name: New first name.
+        last_name: New last name.
+        phone_number: New phone number.
     """
     username: str | None = Field(default=None, min_length=3, max_length=50)
     email: EmailStr | None = Field(default=None, min_length=5, max_length=100)
@@ -54,8 +54,11 @@ class UpdateUserRequest(BaseModel):
     model_config = {
         "json_schema_extra": {
             "example": {
+                "username":"new_username",
                 "email": "new.email@mail.com",
-                "first_name": "New Name"
+                "first_name": "New First Name",
+                "last_name": "New Last Name",
+                "phone_number": "+33612345678"
             }
         }
     }
