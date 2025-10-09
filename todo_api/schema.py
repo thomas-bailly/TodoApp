@@ -35,6 +35,85 @@ class CreateUserRequest(BaseModel):
         }
     }
     
+class UpdateUserRequest(BaseModel):
+    """Schema for updating user data. All fields are optional and nullable.
+    
+    Attributes:
+        username: New unique username (optional).
+        email: New valid email address (optional).
+        first_name: New optional first name.
+        last_name: New optional last name.
+        phone_number: New optional phone number.
+    """
+    username: str | None = Field(default=None, min_length=3, max_length=50)
+    email: EmailStr | None = Field(default=None, min_length=5, max_length=100)
+    first_name: str | None = Field(default=None, min_length=1, max_length=50)
+    last_name: str | None = Field(default=None, min_length=1, max_length=50)
+    phone_number: str | None = Field(default=None, min_length=10, max_length=15)
+    
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "email": "new.email@mail.com",
+                "first_name": "New Name"
+            }
+        }
+    }
+
+class UpdatePasswordRequest(BaseModel):
+    """Schema for updating a user's password.
+    
+    Attributes:
+        old_password: The user's current password, required for verification.
+        new_password: The new password to be set.
+    """
+    old_password: str = Field(min_length=6, max_length=100)
+    new_password: str = Field(min_length=6, max_length=100)
+    
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "old_password": "strongpassword",
+                "new_password": "newstrongpassword"
+            }
+        }
+    }
+
+class UserOutput(BaseModel):
+    """Schema for user data returned to the client (excluding sensitive info).
+    
+    Attributes:
+        id: The unique identifier of the user.
+        username: Unique username.
+        email: Valid email address.
+        first_name: Optional first name.
+        last_name: Optional last name.
+        phone_number: Optional phone number.
+        role: User role.
+        
+    Note: 'hashed_password' and other internal fields are excluded.
+    """
+    id: int
+    username: str
+    email: EmailStr
+    first_name: str | None
+    last_name: str | None
+    phone_number: str | None
+    role : str
+    
+    # Configure Pydantic to map ORM attributes to fields
+    model_config = {
+        "from_attributes": True,
+        "json_schema_extra": {
+            "example": {
+                "id": 1,
+                "username": "Alice",
+                "email": "Alice@email.com",
+                "role": "user"
+            }
+        }
+    }
+    
 class Message(BaseModel):
     """Schema representing a simple response message.
 
