@@ -47,11 +47,11 @@ def authenticate_user(username: str, password: str, db: db_dependency) -> User |
         db (db_dependency): Database session.
 
     Returns:
-        User: The authenticated user object if credentials are valid, else False.
+        User: The authenticated user object if credentials are valid, else None.
     """
     user = db.query(User).filter(User.username == username).first()
     if not user:
-        return False
+        return None
     
     if verify_password(password=password, hashed_password=user.hashed_password):
         return user
