@@ -1,5 +1,4 @@
 import pytest
-import pytest_asyncio
 from fastapi import status, HTTPException
 from jose import jwt
 from datetime import datetime, timedelta, timezone
@@ -42,6 +41,38 @@ class TestRegister:
                                                           "is_active"})
         for field, value in user_data_db.items():
             assert value == user_data.get(field)
+            
+    def test_register_user_duplicate_username(self, client, db, test_user):
+        
+        user_data = {
+            "username":"TestUser",
+            "email":"new@mail.com",
+            "role":"user",
+            "password":"PassWord"
+        }
+        
+        # Send POST request to create the user
+        response = client.post("/auth/register", json=user_data)
+        
+        # Verify the status code and detail
+        assert response.status_code == status.HTTP_409_CONFLICT
+        assert response.json()["detail"] == "Username already exists."
+        
+    def test_register_user_duplicate_email(self, client, db, test_user):
+        
+        user_data = {
+            "username":"NewUser",
+            "email":"test-user@email.com",
+            "role":"user",
+            "password":"PassWord"
+        }
+        
+        # Send POST request to create the user
+        response = client.post("/auth/register", json=user_data)
+        
+        # Verify the status code and detail
+        assert response.status_code == status.HTTP_409_CONFLICT
+        assert response.json()["detail"] == "Email already exists."
             
 class TestLogin:
 
