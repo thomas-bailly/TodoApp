@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 
 from todo_api.database import Base
 from todo_api.api import app
-from todo_api.dependencies import get_db
+from todo_api.dependencies import get_db, get_current_user
 from todo_api.models import User
 from todo_api.security import hash_password
 
@@ -74,7 +74,25 @@ def client(db):
     
     app.dependency_overrides.clear()
     
+
+@pytest.fixture(scope="function")
+def auth_client(db, test_user):
+    """Fixture to provide a TestClient with an authenticated test user."""
     
+    def override_get_db_for_client():
+        yield db
+    
+    def override_get_current_user():
+        return test_user
+
+    app.dependency_overrides[get_db] = override_get_db_for_client
+    app.dependency_overrides[get_current_user] = override_get_current_user
+    
+    with TestClient(app) as test_client:
+        yield test_client
+    
+    app.dependency_overrides.clear()
+
 # ============================ User Fixture ================================== #
 @pytest.fixture(scope="function")
 def test_user(db):
