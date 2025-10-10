@@ -1,11 +1,11 @@
 from fastapi import status
 
 from tests.utils import model_to_dict
-
+from todo_api.security import verify_password
 
 class TestReadUser:
     
-    def test_read_user_me(auth_client, db, test_user):
+    def test_read_user_me(self, auth_client, db, test_user):
         
         # Send GET request
         response = auth_client.get("/user/me")
@@ -17,7 +17,7 @@ class TestReadUser:
 
 class TestUpdateUser:
     
-    def test_update_user_me_success(auth_client, db, test_user):
+    def test_update_user_me_success(self, auth_client, db, test_user):
         
         new_data = {
             "first_name": "Alice",
@@ -41,7 +41,7 @@ class TestUpdateUser:
         for field, value in old_data.items():
             assert value == getattr(test_user, field)
             
-    def test_update_user_me_duplicate_username(auth_client, db, test_user, test_admin):
+    def test_update_user_me_duplicate_username(self, auth_client, db, test_user, test_admin):
         
         new_data = {
             "username":"TestAdmin"
@@ -54,7 +54,7 @@ class TestUpdateUser:
         assert response.status_code == status.HTTP_409_CONFLICT
         assert response.json()["detail"] == "Username already exists."
         
-    def test_update_user_me_duplicate_email(auth_client, db, test_user, test_admin):
+    def test_update_user_me_duplicate_email(self, auth_client, db, test_user, test_admin):
         
         new_data = {
             "email":"admin@email.com"
@@ -66,4 +66,3 @@ class TestUpdateUser:
         # Verify the status code and detail
         assert response.status_code == status.HTTP_409_CONFLICT
         assert response.json()["detail"] == "Email already exists."
-        
