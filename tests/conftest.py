@@ -93,6 +93,24 @@ def auth_client(db, test_user):
     
     app.dependency_overrides.clear()
 
+@pytest.fixture(scope="function")
+def admin_client(db, test_admin):
+    """Fixture to provide a TestClient with an authenticated admin."""
+    
+    def override_get_db_for_client():
+        yield db
+    
+    def override_get_current_user():
+        return test_admin
+
+    app.dependency_overrides[get_db] = override_get_db_for_client
+    app.dependency_overrides[get_current_user] = override_get_current_user
+    
+    with TestClient(app) as test_client:
+        yield test_client
+    
+    app.dependency_overrides.clear()
+
 # ============================ User Fixture ================================== #
 @pytest.fixture(scope="function")
 def test_user(db):
@@ -112,3 +130,22 @@ def test_user(db):
     db.flush()
     db.refresh(user)
     yield user
+    
+@pytest.fixture(scope="function")
+def test_admin(db):
+    """Fixture to create a test admin in the database."""
+    
+    admin = User(
+        username="TestAdmin",
+        email="admin@email.com",
+        first_name="Test",
+        last_name="Admin",
+        role="admin",
+        phone_number="+33611111111",
+        hashed_password=hash_password("testpassword")
+    )
+    
+    db.add(admin)
+    db.flush()
+    db.refresh(admin)
+    yield admin
