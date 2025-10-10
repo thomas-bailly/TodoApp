@@ -2,6 +2,7 @@ from fastapi import status
 
 from tests.utils import model_to_dict
 from todo_api.security import verify_password
+from todo_api.models import Todo, User
 
 class TestReadUser:
     
@@ -132,3 +133,38 @@ class TestChangePassword:
         # Verify that the password has not changed
         assert test_user.hashed_password == old_hashed
         assert verify_password("testpassword", test_user.hashed_password)
+        
+class TestDeleteUser:
+    
+    def test_delete_user_me(self, auth_client, db, test_user):
+        
+        user_id = test_user.id
+        
+        # Create a todo for the user
+        todo = Todo(
+            title="Sample Todo",
+            description="A sample todo item.",
+            owner_id=user_id
+        )
+        
+        db.add(todo)
+        db.commit()
+        db.refresh(todo)
+        
+        # Verify the todo exists
+        todo_in_db = db.query(Todo).filter(Todo.id == todo.id).first()
+        assert todo_in_db is not None
+        
+        todo_id = todo.id
+        
+        # Send DELETE request
+        response = auth_client.delete("/user/me")
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        
+        # Verify the user is deleted
+        user_in_db = db.query(User).filter(User.id == user_id).first()
+        assert user_in_db is None
+        
+        # Verify the user's todos are deleted
+        todo_in_db = db.query(Todo).filter(Todo.id == todo_id).first()
+        assert todo_in_db is None
