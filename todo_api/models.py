@@ -1,5 +1,6 @@
 from todo_api.database import Base
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
 
 
 class User(Base):
@@ -14,6 +15,10 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     role = Column(String)  # Defines role for authorization
     phone_number = Column(String, nullable=True)
+    
+    # Relationship with Todo model
+    todos = relationship("Todo", back_populates="owner",
+                         cascade="all, delete-orphan")
 
 
 class Todo(Base):
@@ -24,4 +29,7 @@ class Todo(Base):
     description = Column(String)
     priority = Column(Integer)
     complete = Column(Boolean, default=False)
-    owner_id = Column(Integer, ForeignKey("users.id"))
+    owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    
+    # Relationship with User model
+    owner = relationship("User", back_populates="todos")
