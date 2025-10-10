@@ -48,3 +48,11 @@ async def change_password(password_request:UpdatePasswordRequest, user:user_depe
     
     db.commit()
     return Message(message="Password updated successfully.")
+
+# =============================== Delete User ================================ #
+@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user_me(user:user_dependency, db:db_dependency):
+    
+    db.delete(user)
+    db.commit()
+    return
