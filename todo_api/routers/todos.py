@@ -60,3 +60,25 @@ async def read_todo(db: db_dependency, user: user_dependency,
     
     return todo
 
+# =============================== Update Todos =============================== #
+@router.put("/{todo_id}", status_code=status.HTTP_200_OK, response_model=Message)
+async def update_todo(todo_request: TodoUpdateRequest, db: db_dependency,
+                      user: user_dependency, todo_id: int = Path(gt=0)) -> Message:
+    
+    # Query to find the todo by ID and ensure it belongs to the authenticated user
+    todo = db.query(Todo).filter(Todo.owner_id == user.id,
+                                 Todo.id == todo_id).first()
+    
+    # If no todo is found, raise a 404 error
+    if todo is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Todo not found or not owned by the user."
+        )
+        
+    # for loop to update attributes
+    for field, value in todo_request.model_dump(exclude_unset=True).items():
+        setattr(todo, field, value)
+        
+    db.commit()
+    return Message(message="Todo updated successfully.")
