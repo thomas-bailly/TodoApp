@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Query
+from fastapi import APIRouter, status, HTTPException, Query, Path
 
 from todo_api.dependencies import db_dependency, user_dependency
 from todo_api.schema import Message, TodoRequest, TodoUpdateRequest, TodoOutput
@@ -31,3 +31,20 @@ async def read_all_todos(db: db_dependency, user: user_dependency,
     
     # query execution and return results: a list of TodoOutput
     return query.all()
+
+@router.get("/{todo_id}", status_code=status.HTTP_200_OK, response_model=TodoOutput)
+async def read_todo(db: db_dependency, user: user_dependency,
+                    todo_id: int = Path(gt=0)) -> TodoOutput:
+    
+    # Query to find the todo by ID and ensure it belongs to the authenticated user
+    todo = db.query(Todo).filter(Todo.owner_id == user.id,
+                                 Todo.id == todo_id).first()
+    
+    # If no todo is found, raise a 404 error
+    if todo is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Todo not found or not owned by the user."
+        )
+    
+    return todo
