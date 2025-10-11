@@ -1,6 +1,8 @@
 from pydantic import BaseModel, Field, EmailStr
 
 
+# =============================== User Schemas =============================== #
+# Request 
 class CreateUserRequest(BaseModel):
     """Schema for user registration request.
     
@@ -82,6 +84,7 @@ class UpdatePasswordRequest(BaseModel):
         }
     }
 
+# Output/Response
 class UserOutput(BaseModel):
     """Schema for user data returned to the client (excluding sensitive info).
     
@@ -116,7 +119,95 @@ class UserOutput(BaseModel):
             }
         }
     }
+
+# ================================ Todo Schemas ============================== #
+class TodoBase(BaseModel):
+    """Base schema for Todo items, shared by request and response models.
+
+    Attributes:
+        title (str): The title of the todo item (3-100 characters).
+        description (str): A brief description of the todo item (3-250 characters).
+        priority (int): Priority level of the todo item (1-5).
+    """
     
+    title: str = Field(min_length=3, max_length=100)
+    description: str = Field(min_length=3, max_length=250)
+    priority: int = Field(gt=0, lt=6)
+    
+    model_config = {
+        "json_schema_extra":{
+            "example": {
+                "title": "Sample Todo",
+                "description": "This is a sample todo.",
+                "priority": 3
+            }
+        }
+    }
+
+# Request 
+class TodoRequest(TodoBase):
+    """Schema for creating a new Todo item.
+    
+    Inherits from TodoBase and adds the 'complete' field, which defaults to False.
+    
+    Attributes:
+        complete (bool): Indicates if the todo item is completed. Defaults to False.
+    """
+    complete: bool = Field(default=False)
+    
+class TodoUpdateRequest(BaseModel):
+    """Schema for updating an existing Todo item. All fields are optional.
+    
+    Attributes:
+        title (str | None): New title for the todo item.
+        description (str | None): New description for the todo item.
+        priority (int | None): New priority level for the todo item.
+        complete (bool | None): New completion status for the todo item.
+    """
+    title: str | None = Field(default=None, min_length=3, max_length=100)
+    description: str | None = Field(default=None, min_length=3, max_length=250)
+    priority: int | None = Field(default=None, gt=0, lt=6)
+    complete: bool | None = Field(default=None)
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "title": "Updated Title",
+                "priority": 2,
+            }
+        }
+    }
+
+# Output/Response
+class TodoOutput(TodoBase):
+    """Schema for Todo items returned to the client.
+    
+    Attributes:
+        id (int): The unique identifier of the todo item.
+        complete (bool): Indicates if the todo item is completed.
+        owner_id (int): The ID of the user who owns this todo item.
+    """
+    
+    id: int
+    complete: bool
+    owner_id: int
+
+    model_config = {
+        # Instructs Pydantic to extract data from ORM object attributes
+        "from_attributes": True,
+        "json_schema_extra": {
+            "example": {
+                "id": 1,
+                "title": "Sample Todo",
+                "description": "This is a sample todo.",
+                "priority": 3,
+                "complete": False,
+                "owner_id": 1
+            }
+        }
+    }
+
+# =============================== Other Schemas ============================== #
 class Message(BaseModel):
     """Schema representing a simple response message.
 
