@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, Path, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
@@ -6,7 +6,7 @@ from typing import Annotated
 from todo_api.database import SessionLocal
 from todo_api.config import settings
 from todo_api.security import decode_access_token, credential_exception
-from todo_api.models import User
+from todo_api.models import User, Todo
 
 
 def get_db():
@@ -65,3 +65,36 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)],
     return user
 
 user_dependency = Annotated[User, Depends(get_current_user)]
+
+# ========================= Get Todo By Id Dependency ======================== #
+def get_todo_by_id(db: db_dependency, user: user_dependency,
+                   todo_id: int = Path(gt=0)) -> Todo:
+    """Retrieve a Todo item by its ID, ensuring it belongs to the authenticated user.
+    
+    Args:
+        db (Session): The database session dependency.
+        user (User): The authenticated User object.
+        todo_id (int): The ID of the Todo item to retrieve.
+    
+    Returns:
+        Todo: The requested Todo item.
+        
+    Raises:
+        HTTPException (404 NOT FOUND): If the Todo item does not exist or is not
+    """
+    
+    
+    # Query to find the todo by ID and ensure it belongs to the authenticated user
+    todo = db.query(Todo).filter(Todo.owner_id == user.id,
+                                 Todo.id == todo_id).first()
+    
+    # If no todo is found, raise a 404 error
+    if todo is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Todo not found or not owned by the user."
+        )
+    
+    return todo
+
+get_todo_dependency = Annotated[Todo, Depends(get_todo_by_id)]
