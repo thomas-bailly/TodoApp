@@ -1,4 +1,5 @@
 from fastapi import APIRouter, status, HTTPException, Query, Path
+from sqlalchemy import or_
 
 from todo_api.dependencies import db_dependency, user_dependency
 from todo_api.schema import Message, TodoRequest, TodoUpdateRequest, TodoOutput
@@ -20,7 +21,8 @@ async def create_todo(todo_request: TodoRequest, db: db_dependency,
 # ================================ Get Todos ================================= #
 @router.get("", status_code=status.HTTP_200_OK, response_model=list[TodoOutput])
 async def read_all_todos(db: db_dependency, user: user_dependency,
-                         complete: bool | None = Query(default=None)) -> list[TodoOutput]:
+                         complete: bool | None = Query(default=None),
+                         search: str | None = Query(default=None)) -> list[TodoOutput]:
     
     # Base query filtering todos by the authenticated user
     query = db.query(Todo).filter(Todo.owner_id == user.id)
@@ -28,6 +30,15 @@ async def read_all_todos(db: db_dependency, user: user_dependency,
     # If 'complete' is provided, further filter the todos
     if complete is not None:
         query = query.filter(Todo.complete == complete)
+        
+    if search is not None:
+        pattern = f"%{search}%"
+        query = query.filter(
+            or_(
+                Todo.title.ilike(pattern),
+                Todo.description.ilike(pattern)
+            )
+        )
     
     # query execution and return results: a list of TodoOutput
     return query.all()
@@ -48,3 +59,4 @@ async def read_todo(db: db_dependency, user: user_dependency,
         )
     
     return todo
+
