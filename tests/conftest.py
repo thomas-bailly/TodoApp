@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 from todo_api.database import Base
 from todo_api.api import app
 from todo_api.dependencies import get_db, get_current_user
-from todo_api.models import User
+from todo_api.models import User, Todo
 from todo_api.security import hash_password
 
 # ============================= DB Setup Fixtures ============================ #
@@ -149,3 +149,33 @@ def test_admin(db):
     db.flush()
     db.refresh(admin)
     yield admin
+    
+# ============================ Todo Fixture ================================== #
+@pytest.fixture(scope='function')
+def test_todos(db, test_user, test_admin):
+    
+    todo_user_1 = Todo(
+        title="User Todo 1", description="Important", priority=5,
+        complete=False, owner_id=test_user.id
+    )
+    
+    todo_user_2 = Todo(
+        title="User Todo 2", description="Completed", priority=3,
+        complete=True, owner_id=test_user.id
+    )
+    
+    todo_admin = Todo(
+        title="Admin Todo", description="Admin task", priority=4,
+        complete=False, owner_id=test_admin.id
+    )
+    
+    db.add_all([todo_user_1, todo_user_2, todo_admin])
+    db.commit()
+    db.refresh(todo_user_1)
+    db.refresh(todo_user_2)
+    db.refresh(todo_admin)
+    
+    yield {
+        "user": [todo_user_1, todo_user_2],
+        "admin":[todo_admin]
+    }
