@@ -113,3 +113,54 @@ class TestReadTodo:
         response = auth_client.get(f"/todos/{todo_ref.id}")
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert response.json()["detail"] == "Todo not found or not owned by the user."
+        
+class TestUpdateTodo:
+    
+    def test_update_todo_success(self, auth_client, db, test_todos, test_user):
+        
+        # Get a reference to a todo owned by test_user
+        todo_ref = test_todos["user"][0]
+        
+        updated_data = {
+            "title": "Updated Todo",
+            "complete": True
+        }
+        
+        old_data = {f:v for f, v in model_to_dict(todo_ref).items()
+                    if f not in updated_data}
+        
+        # Send PUT request
+        response = auth_client.put(f"/todos/{todo_ref.id}", json=updated_data)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["message"] == "Todo updated successfully."
+        
+        db.refresh(todo_ref)
+        
+        # Verify updated fields
+        for field, value in updated_data.items():
+            assert value == getattr(todo_ref, field)
+            
+        # Verify unchanged fields
+        for field, value in old_data.items():
+            assert value == getattr(todo_ref, field)
+            
+    def test_update_todo_non_updatable_field(self, auth_client, db,
+                                             test_todos, test_user):
+        
+        # Get a reference to a todo owned by test_user
+        todo_ref = test_todos["user"][0]
+        
+        updated_data = {
+            "owner_id": 2
+        }
+        
+        # Send PUT request
+        response = auth_client.put(f"/todos/{todo_ref.id}", json=updated_data)
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+        
+        db.refresh(todo_ref)
+        
+        # Verify updated fields
+        for field, value in updated_data.items():
+            assert value != getattr(todo_ref, field)
+        
