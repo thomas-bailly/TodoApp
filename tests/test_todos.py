@@ -77,3 +77,39 @@ class TestReadAllTodos:
         for todo in todo_list:
             assert (pattern.search(todo["title"]) or pattern.search(todo["description"]))
             assert todo["owner_id"] == test_user.id
+
+class TestReadTodo:
+    
+    def test_read_todo_success(self, auth_client, test_todos, test_user):
+        
+        # Get a reference to a todo owned by test_user
+        todo_ref = test_todos["user"][0]
+        
+        # Send GET request
+        response = auth_client.get(f"/todos/{todo_ref.id}")
+        assert response.status_code == status.HTTP_200_OK
+        
+        # Verify the returned todo data
+        todo = response.json()
+        
+        for field, value in todo.items():
+            assert value == getattr(todo_ref, field)
+            
+        assert todo["owner_id"] == todo_ref.owner_id
+        
+    def test_read_todo_not_found(self, auth_client, test_todos, test_user):
+        
+        # Send GET request
+        response = auth_client.get("/todos/42")
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.json()["detail"] == "Todo not found or not owned by the user."
+        
+    def test_read_todo_not_owned(self, auth_client, test_todos, test_user):
+        
+        # Get a reference to a todo owned by test_admin
+        todo_ref = test_todos["admin"][0]
+        
+        # Send GET request
+        response = auth_client.get(f"/todos/{todo_ref.id}")
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.json()["detail"] == "Todo not found or not owned by the user."
