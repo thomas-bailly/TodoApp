@@ -67,6 +67,19 @@ class TestUpdateUser:
         # Verify the status code and detail
         assert response.status_code == status.HTTP_409_CONFLICT
         assert response.json()["detail"] == "Email already exists."
+        
+    def test_update_user_me_non_valid_field(self, auth_client, db,
+                                            test_user):
+        
+        new_data = {
+            "id":42
+        }
+        
+        # Send PUT request
+        response = auth_client.put("/user/me", json=new_data)
+        
+        # Verify the status code and detail
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 class TestChangePassword:
     
@@ -133,6 +146,19 @@ class TestChangePassword:
         # Verify that the password has not changed
         assert test_user.hashed_password == old_hashed
         assert verify_password("testpassword", test_user.hashed_password)
+        
+    def test_change_password_non_valid_field(self, auth_client, db, test_user):
+        
+        password_data = {
+            "password":"testpassword",
+            "new_password":"testpassword"
+        }
+        
+        # Send PUT request
+        response = auth_client.put("/user/me/password", json=password_data)
+        
+        # Verify the status code and detail
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
         
 class TestDeleteUser:
     
