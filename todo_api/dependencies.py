@@ -98,3 +98,27 @@ def get_todo_by_id(db: db_dependency, user: user_dependency,
     return todo
 
 get_todo_dependency = Annotated[Todo, Depends(get_todo_by_id)]
+
+# ============================= Admin Dependency ============================= #
+def admin_dependency(user: user_dependency):
+    """Ensure the current user has admin privileges.
+
+    Args:
+        user (user_dependency): The authenticated User object.
+
+    Returns:
+        User: The same User object if they have admin privileges.
+        
+    Raises:
+        HTTPException (403 FORBIDDEN): If the user does not have admin privileges.
+    """
+    
+    if user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Operation requires administrator privileges."
+        )
+    
+    return user
+
+admin_dependency = Annotated[User, Depends(admin_dependency)]
