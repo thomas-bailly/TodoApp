@@ -170,6 +170,7 @@ class TodoUpdateRequest(BaseModel):
     complete: bool | None = Field(default=None)
 
     model_config = {
+        "extra": "forbid",
         "json_schema_extra": {
             "example": {
                 "title": "Updated Title",
