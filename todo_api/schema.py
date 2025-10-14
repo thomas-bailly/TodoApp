@@ -54,6 +54,7 @@ class UpdateUserRequest(BaseModel):
     phone_number: str | None = Field(default=None, min_length=10, max_length=15)
     
     model_config = {
+        "extra": "forbid",
         "json_schema_extra": {
             "example": {
                 "username":"new_username",
@@ -76,6 +77,7 @@ class UpdatePasswordRequest(BaseModel):
     new_password: str = Field(min_length=6, max_length=100)
     
     model_config = {
+        "extra": "forbid",
         "json_schema_extra": {
             "example": {
                 "old_password": "strongpassword",
