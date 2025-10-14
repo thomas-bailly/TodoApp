@@ -163,4 +163,22 @@ class TestUpdateTodo:
         # Verify updated fields
         for field, value in updated_data.items():
             assert value != getattr(todo_ref, field)
+            
+class TestDeleteUser:
+    
+    def test_delete_user(self, auth_client, db, test_todos, test_user):
         
+        # Get a reference to a todo owned by test_user
+        todo_id = test_todos["user"][0].id
+        
+        # Send DELETE request
+        response = auth_client.delete(f"/todos/{todo_id}")
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        
+        db.expire_all()
+        
+        todo = db.query(Todo).filter(
+            Todo.id == todo_id
+        ).first()
+        
+        assert todo is None
