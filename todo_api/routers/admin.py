@@ -26,7 +26,8 @@ async def read_all_users(db: db_dependency, admin: admin_dependency,
     return query.all()
 
 @router.get("/users/{user_id}", status_code=status.HTTP_200_OK, response_model=UserOutput)
-async def read_user(db: db_dependency, admin, user_id: int = Path(gt=0)) -> UserOutput:
+async def read_user(db: db_dependency, admin: admin_dependency,
+                    user_id: int = Path(gt=0)) -> UserOutput:
     
     user = db.query(User).filter(User.id == user_id).first()
     
