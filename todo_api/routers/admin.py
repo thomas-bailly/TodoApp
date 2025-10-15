@@ -21,7 +21,7 @@ async def read_all_users(db: db_dependency, admin: admin_dependency,
     
     # If 'username' is provided, further filter the users
     if username is not None:
-        query = query.filter(User.username.ilike(username))
+        query = query.filter(User.username.ilike(f"{username}%"))
         
     return query.all()
 
