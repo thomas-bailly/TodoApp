@@ -36,3 +36,18 @@ async def read_user(db: db_dependency, admin: admin_dependency,
     
     return user
 
+# ================================= Get Todo ================================= #
+@router.get("/todos/{todo_id}", status_code=status.HTTP_200_OK, response_model=TodoOutput)
+async def read_todo(db: db_dependency, admin: admin_dependency,
+                    todo_id: int = Path(gt=0)) -> TodoOutput:
+    
+    todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    
+    if todo is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Todo not found."
+        )
+    
+    return todo
+
