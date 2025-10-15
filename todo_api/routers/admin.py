@@ -73,6 +73,9 @@ async def update_user(update_request: AdminUpdateUserRequest, db: db_dependency,
     
     user = db.query(User).filter(User.id == user_id).first()
     
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    
     # for loop to update attributes
     for field, value in update_request.model_dump(exclude_unset=True).items():
         setattr(user, field, value)
@@ -86,6 +89,9 @@ async def delete_user(db: db_dependency, admin: admin_dependency,
                       user_id: int = Path(gt=0)):
     
     user = db.query(User).filter(User.id == user_id).first()
+    
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     
     db.delete(user)
     db.commit()
