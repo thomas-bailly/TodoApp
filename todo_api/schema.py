@@ -139,6 +139,10 @@ class UserOutput(BaseModel):
         }
     }
 
+class AdminUserOutput(UserOutput):
+    """Extended schema for admin view of user data, includes 'is_active' status."""
+    is_active: bool
+
 # ================================ Todo Schemas ============================== #
 class TodoBase(BaseModel):
     """Base schema for Todo items, shared by request and response models.
