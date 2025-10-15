@@ -1,16 +1,17 @@
 from fastapi import APIRouter, status, HTTPException, Query, Path
 
 from todo_api.dependencies import db_dependency, admin_dependency
-from todo_api.schema import Message, UserOutput, TodoOutput, AdminUpdateUserRequest
+from todo_api.schema import Message, AdminUserOutput, TodoOutput, AdminUpdateUserRequest
 from todo_api.models import User, Todo
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 # ================================= Get User ================================= #
-@router.get("/users", status_code=status.HTTP_200_OK, response_model=list[UserOutput])
+@router.get("/users", status_code=status.HTTP_200_OK, response_model=list[AdminUserOutput])
 async def read_all_users(db: db_dependency, admin: admin_dependency,
                          role: str | None = Query(default=None),
-                         username: str | None = Query(default=None)) -> list[UserOutput]:
+                         username: str | None = Query(default=None),
+                         is_active: bool | None = Query(default=None)) -> list[AdminUserOutput]:
     
     # Base query filtering
     query = db.query(User)
@@ -19,15 +20,18 @@ async def read_all_users(db: db_dependency, admin: admin_dependency,
     if role is not None:
         query = query.filter(User.role == role)
     
+    if is_active is not None:
+        query = query.filter(User.is_active == is_active)
+    
     # If 'username' is provided, further filter the users
     if username is not None:
         query = query.filter(User.username.ilike(f"{username}%"))
         
     return query.all()
 
-@router.get("/users/{user_id}", status_code=status.HTTP_200_OK, response_model=UserOutput)
+@router.get("/users/{user_id}", status_code=status.HTTP_200_OK, response_model=AdminUserOutput)
 async def read_user(db: db_dependency, admin: admin_dependency,
-                    user_id: int = Path(gt=0)) -> UserOutput:
+                    user_id: int = Path(gt=0)) -> AdminUserOutput:
     
     user = db.query(User).filter(User.id == user_id).first()
     
