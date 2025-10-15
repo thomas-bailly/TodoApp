@@ -26,7 +26,8 @@ async def read_all_users(db: db_dependency, admin: admin_dependency,
     return query.all()
 
 @router.get("/users/{user_id}", status_code=status.HTTP_200_OK, response_model=UserOutput)
-async def read_user(db: db_dependency, admin, user_id: int = Path(gt=0)) -> UserOutput:
+async def read_user(db: db_dependency, admin: admin_dependency,
+                    user_id: int = Path(gt=0)) -> UserOutput:
     
     user = db.query(User).filter(User.id == user_id).first()
     
@@ -34,4 +35,19 @@ async def read_user(db: db_dependency, admin, user_id: int = Path(gt=0)) -> User
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     
     return user
+
+# ================================= Get Todo ================================= #
+@router.get("/todos/{todo_id}", status_code=status.HTTP_200_OK, response_model=TodoOutput)
+async def read_todo(db: db_dependency, admin: admin_dependency,
+                    todo_id: int = Path(gt=0)) -> TodoOutput:
+    
+    todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    
+    if todo is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Todo not found."
+        )
+    
+    return todo
 
