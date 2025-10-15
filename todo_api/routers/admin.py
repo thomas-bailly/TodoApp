@@ -79,3 +79,14 @@ async def update_user(update_request: AdminUpdateUserRequest, db: db_dependency,
             
     db.commit()
     return Message(message="User updated successfully.")
+
+# =============================== Delete User ================================ #
+@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(db: db_dependency, admin: admin_dependency,
+                      user_id: int = Path(gt=0)):
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    
+    db.delete(user)
+    db.commit()
+    return
