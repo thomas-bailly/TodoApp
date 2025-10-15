@@ -85,6 +85,23 @@ class UpdatePasswordRequest(BaseModel):
             }
         }
     }
+    
+class AdminUpdateUserRequest(UpdateUserRequest):
+    """Schema for admin to update user attributes, extending UpdateUserRequest.
+    """
+    
+    is_active: bool | None = Field(default=None)
+    role: str | None = Field(default=None)
+    
+    model_config = {
+        "extra": "forbid",
+        "json_schema_extra": {
+            "example": {
+                "is_active": False,
+                "role": "user"
+            }
+        }
+    }
 
 # Output/Response
 class UserOutput(BaseModel):
