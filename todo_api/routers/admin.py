@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, HTTPException, Query, Path
 
 from todo_api.dependencies import db_dependency, admin_dependency
-from todo_api.schema import Message, UserOutput, TodoOutput
+from todo_api.schema import Message, UserOutput, TodoOutput, AdminUpdateUserRequest
 from todo_api.models import User, Todo
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -61,3 +61,17 @@ async def read_user_todos(db: db_dependency, admin: admin_dependency,
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     
     return db.query(Todo).filter(Todo.owner_id == user.id).all()
+
+# =============================== Update User =============================== #
+@router.put("/users/{user_id}", status_code=status.HTTP_200_OK, response_model=Message)
+async def update_user(update_request: AdminUpdateUserRequest, db: db_dependency,
+                      admin: admin_dependency, user_id: int = Path(gt=0)) -> Message:
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    
+    # for loop to update attributes
+    for field, value in update_request.model_dump(exclude_unset=True).items():
+        setattr(user, field, value)
+            
+    db.commit()
+    return Message(message="User updated successfully.")
