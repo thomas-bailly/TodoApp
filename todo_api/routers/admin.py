@@ -51,3 +51,13 @@ async def read_todo(db: db_dependency, admin: admin_dependency,
     
     return todo
 
+@router.get("/users/{user_id}/todos", status_code=status.HTTP_200_OK, response_model=list[TodoOutput])
+async def read_user_todos(db: db_dependency, admin: admin_dependency,
+                          user_id: int = Path(gt=0)) -> list[TodoOutput]:
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    
+    return db.query(Todo).filter(Todo.owner_id == user.id).all()
