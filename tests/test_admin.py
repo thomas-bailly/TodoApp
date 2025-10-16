@@ -1,10 +1,11 @@
 from fastapi import status
 
+from tests.utils import model_to_dict
 from todo_api.models import Todo, User
 
 class TestReaAllUser:
     
-    def test_read_all_users(db, admin_client, test_admin, test_user):
+    def test_read_all_users(self, db, admin_client, test_admin, test_user):
         
         # Send GET request
         response = admin_client.get("/admin/users")
@@ -13,7 +14,7 @@ class TestReaAllUser:
         user_list = response.json()
         assert len(user_list) == 2
         
-    def test_read_all_users_role_filter(db, admin_client, test_admin, test_user):
+    def test_read_all_users_role_filter(self, db, admin_client, test_admin, test_user):
         
         # Send GET request
         response = admin_client.get("/admin/users?role=user")
@@ -24,7 +25,7 @@ class TestReaAllUser:
         
         assert user_list[0]["role"] == "user"
         
-    def test_read_all_users_username_filter(db, admin_client, test_admin, test_user):
+    def test_read_all_users_username_filter(self, db, admin_client, test_admin, test_user):
         
         pattern = "TestU"
         
@@ -37,7 +38,7 @@ class TestReaAllUser:
         
         assert user_list[0]["username"].startswith(pattern)
         
-    def test_read_all_users_is_active_filter(db, admin_client, test_admin,
+    def test_read_all_users_is_active_filter(self, db, admin_client, test_admin,
                                              test_inactive_user):
         
         # Send GET request
@@ -51,7 +52,7 @@ class TestReaAllUser:
 
 class TestReadUser:
     
-    def test_read_user(db, admin_client, test_admin, test_user):
+    def test_read_user(self, db, admin_client, test_admin, test_user):
         
         # Send GET request
         response = admin_client.get(f"/admin/users/{test_user.id}")
@@ -61,7 +62,7 @@ class TestReadUser:
         for field, value in user_data.items():
             assert value == getattr(test_user, field)
             
-    def test_read_user_not_found(db, admin_client, test_admin, test_user):
+    def test_read_user_not_found(self, db, admin_client, test_admin, test_user):
         
         # Send GET request
         response = admin_client.get("/admin/users/42")
@@ -69,7 +70,7 @@ class TestReadUser:
 
 class TestReadTodo:
     
-    def test_read_todo(db, admin_client, test_admin, test_todos):
+    def test_read_todo(self, db, admin_client, test_admin, test_todos):
         
         todo_ref = test_todos["user"][0]
         
@@ -82,31 +83,30 @@ class TestReadTodo:
         for field, value in todo.items():
             assert value == getattr(todo_ref, field)
 
-    def test_read_todo_not_found(db, admin_client, test_admin, test_todos):
+    def test_read_todo_not_found(self, db, admin_client, test_admin, test_todos):
         
         # Send GET request
         response = admin_client.get("/admin/todos/42")
         assert response.status_code == status. HTTP_404_NOT_FOUND
         assert response.json()["detail"] == "Todo not found."
-        
 
 class TestNonAdminUser:
     
-    def test_read_all_users(db, auth_client, test_user):
+    def test_read_all_users(self, db, auth_client, test_user):
         
         # Send GET request
         response = auth_client.get("/admin/users")
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.json()["detail"] == "Operation requires administrator privileges."
         
-    def test_read_user(db, auth_client, test_user):
+    def test_read_user(self, db, auth_client, test_user):
         
         # Send GET request
         response = auth_client.get(f"/admin/users/{test_user.id}")
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.json()["detail"] == "Operation requires administrator privileges."
         
-    def test_read_todo(db, auth_client, test_user, test_todos):
+    def test_read_todo(self, db, auth_client, test_user, test_todos):
         
         todo_id = test_todos["user"][0].id
         
@@ -115,14 +115,14 @@ class TestNonAdminUser:
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.json()["detail"] == "Operation requires administrator privileges."
         
-    def test_read_user_todos(db, auth_client, test_user, test_todos):
+    def test_read_user_todos(self, db, auth_client, test_user, test_todos):
         
         # Send GET request
         response = auth_client.get(f"/admin/users/{test_user.id}/todos")
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.json()["detail"] == "Operation requires administrator privileges."
         
-    def test_update_user(db, auth_client, test_user):
+    def test_update_user(self, db, auth_client, test_user):
         
         new_data = {
             "first_name": "Updated Name"
@@ -133,7 +133,7 @@ class TestNonAdminUser:
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.json()["detail"] == "Operation requires administrator privileges."
         
-    def test_delete_user(db, auth_client, test_user, test_inactive_user):
+    def test_delete_user(self, db, auth_client, test_user, test_inactive_user):
         
         inactive_id = test_inactive_user.id
         
