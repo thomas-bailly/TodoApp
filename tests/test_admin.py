@@ -49,6 +49,24 @@ class TestReaAllUser:
         
         assert user_list[0]["is_active"] is False
 
+class TestReadUser:
+    
+    def test_read_user(db, admin_client, test_admin, test_user):
+        
+        # Send GET request
+        response = admin_client.get(f"/admin/users/{test_user.id}")
+        assert response.status_code == status.HTTP_200_OK
+        
+        user_data = response.json()
+        for field, value in user_data.items():
+            assert value == getattr(test_user, field)
+            
+    def test_read_user_non_found(db, admin_client, test_admin, test_user):
+        
+        # Send GET request
+        response = admin_client.get("/admin/users/42")
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
 class TestNonAdminUser:
     
     def test_read_all_users(db, auth_client, test_user):
