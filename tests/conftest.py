@@ -121,7 +121,7 @@ def test_user(db):
         email="test-user@email.com",
         first_name="Test",
         last_name="User",
-        role="admin",
+        role="user",
         phone_number="+33612345678",
         hashed_password=hash_password("testpassword")
     )
