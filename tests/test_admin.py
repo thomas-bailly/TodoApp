@@ -51,11 +51,52 @@ class TestReaAllUser:
 
 class TestNonAdminUser:
     
-    def test_read_all_users_non_admin(db, auth_client, test_user):
+    def test_read_all_users(db, auth_client, test_user):
         
         # Send GET request
         response = auth_client.get("/admin/users")
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.json()["detail"] == "Operation requires administrator privileges."
         
-    
+    def test_read_user(db, auth_client, test_user):
+        
+        # Send GET request
+        response = auth_client.get(f"/admin/users/{test_user.id}")
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.json()["detail"] == "Operation requires administrator privileges."
+        
+    def test_read_todo(db, auth_client, test_user, test_todos):
+        
+        todo_id = test_todos["user"][0].id
+        
+        # Send GET request
+        response = auth_client.get(f"/admin/todos/{todo_id}")
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.json()["detail"] == "Operation requires administrator privileges."
+        
+    def test_read_user_todos(db, auth_client, test_user, test_todos):
+        
+        # Send GET request
+        response = auth_client.get(f"/admin/users/{test_user.id}/todos")
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.json()["detail"] == "Operation requires administrator privileges."
+        
+    def test_update_user(db, auth_client, test_user):
+        
+        new_data = {
+            "first_name": "Updated Name"
+        }
+        
+        # Send PUT request
+        response =  auth_client.put(f"/admin/users/{test_user.id}", json=new_data)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.json()["detail"] == "Operation requires administrator privileges."
+        
+    def test_delete_user(db, auth_client, test_user, test_inactive_user):
+        
+        inactive_id = test_inactive_user.id
+        
+        # Send DELETE request
+        response = auth_client.delete(f"/admin/users/{inactive_id}")
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.json()["detail"] == "Operation requires administrator privileges."
