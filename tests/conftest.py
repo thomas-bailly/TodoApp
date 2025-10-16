@@ -150,6 +150,24 @@ def test_admin(db):
     db.refresh(admin)
     yield admin
     
+@pytest.fixture(scope="function")
+def test_inactive_user(db):
+    """Fixture to create an inactive user in the database."""
+    
+    user = User(
+        username="User2",
+        email="U2@email.com",
+        first_name="User",
+        last_name="2",
+        role="user",
+        is_active=False,
+        hashed_password=hash_password("testpassword")
+    )
+    
+    db.add(user)
+    db.flush()
+    db.refresh(user)
+    yield user
 # ============================ Todo Fixture ================================== #
 @pytest.fixture(scope='function')
 def test_todos(db, test_user, test_admin):
