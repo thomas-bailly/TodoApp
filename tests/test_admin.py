@@ -67,6 +67,7 @@ class TestReadUser:
         # Send GET request
         response = admin_client.get("/admin/users/42")
         assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.json()["detail"] == "User not found."
 
 class TestReadTodo:
     
@@ -89,6 +90,44 @@ class TestReadTodo:
         response = admin_client.get("/admin/todos/42")
         assert response.status_code == status. HTTP_404_NOT_FOUND
         assert response.json()["detail"] == "Todo not found."
+
+class TestUpdateUser:
+    
+    def test_update_user(self, db, admin_client, test_admin, test_inactive_user):
+        
+        new_data = {
+            "is_active": True
+        }
+        
+        old_data = {f:v for f, v in model_to_dict(test_inactive_user).items()
+                    if f not in new_data}
+        
+        # Send PUT request
+        response =  admin_client.put(f"/admin/users/{test_inactive_user.id}",
+                                     json=new_data)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["message"] == "User updated successfully."
+        
+        db.refresh(test_inactive_user)
+        
+        # Verify updated fields
+        assert getattr(test_inactive_user, "is_active") is True
+        
+        # Verify unchanged fields
+        for field, value in old_data.items():
+            assert value == getattr(test_inactive_user, field)
+            
+    def test_update_user_not_found(self, db, admin_client, test_admin,
+                                   test_inactive_user):
+        
+        new_data = {
+            "is_active": True
+        }
+        
+        # Send PUT request
+        response =  admin_client.put("/admin/users/42", json=new_data)
+        assert response.status_code == status. HTTP_404_NOT_FOUND
+        assert response.json()["detail"] == "User not found."
 
 class TestNonAdminUser:
     
