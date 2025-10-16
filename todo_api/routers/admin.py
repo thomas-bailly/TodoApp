@@ -94,7 +94,8 @@ async def delete_user(db: db_dependency, admin: admin_dependency,
     user = db.query(User).filter(User.id == user_id).first()
     
     if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="User not found.")
     
     db.delete(user)
     db.commit()

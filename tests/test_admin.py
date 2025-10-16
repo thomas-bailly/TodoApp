@@ -128,6 +128,27 @@ class TestUpdateUser:
         response =  admin_client.put("/admin/users/42", json=new_data)
         assert response.status_code == status. HTTP_404_NOT_FOUND
         assert response.json()["detail"] == "User not found."
+        
+class TestDeleteUser:
+    
+    def test_delete_user(self, db, admin_client, test_admin, test_inactive_user):
+        
+        id_to_delete = test_inactive_user.id
+        
+        # Send DELETE request
+        response = admin_client.delete(f"/admin/users/{id_to_delete}")
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        
+        # Verify the user is deleted
+        user = db.query(User).filter(User.id == id_to_delete).first()
+        assert user is None
+
+    def test_delete_user_not_found(self, db, admin_client, test_admin, test_inactive_user):
+        
+        # Send DELETE request
+        response = admin_client.delete("/admin/users/42")
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.json()["detail"] == "User not found."
 
 class TestNonAdminUser:
     
