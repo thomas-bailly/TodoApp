@@ -2,7 +2,7 @@ from fastapi import status
 
 from todo_api.models import Todo, User
 
-class TestReadUser:
+class TestReaAllUser:
     
     def test_read_all_users(db, admin_client, test_admin, test_user):
         
