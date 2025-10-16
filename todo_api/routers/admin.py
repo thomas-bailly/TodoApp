@@ -36,7 +36,8 @@ async def read_user(db: db_dependency, admin: admin_dependency,
     user = db.query(User).filter(User.id == user_id).first()
     
     if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="User not found.")
     
     return user
 
@@ -62,7 +63,8 @@ async def read_user_todos(db: db_dependency, admin: admin_dependency,
     user = db.query(User).filter(User.id == user_id).first()
     
     if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="User not found.")
     
     return db.query(Todo).filter(Todo.owner_id == user.id).all()
 
@@ -74,7 +76,8 @@ async def update_user(update_request: AdminUpdateUserRequest, db: db_dependency,
     user = db.query(User).filter(User.id == user_id).first()
     
     if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail='User not found.')
     
     # for loop to update attributes
     for field, value in update_request.model_dump(exclude_unset=True).items():
