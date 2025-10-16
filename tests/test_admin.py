@@ -61,11 +61,34 @@ class TestReadUser:
         for field, value in user_data.items():
             assert value == getattr(test_user, field)
             
-    def test_read_user_non_found(db, admin_client, test_admin, test_user):
+    def test_read_user_not_found(db, admin_client, test_admin, test_user):
         
         # Send GET request
         response = admin_client.get("/admin/users/42")
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+class TestReadTodo:
+    
+    def test_read_todo(db, admin_client, test_admin, test_todos):
+        
+        todo_ref = test_todos["user"][0]
+        
+        # Send GET request
+        response = admin_client.get(f"/admin/todos/{todo_ref.id}")
+        assert response.status_code == status.HTTP_200_OK
+        
+        todo = response.json()
+        
+        for field, value in todo.items():
+            assert value == getattr(todo_ref, field)
+
+    def test_read_todo_not_found(db, admin_client, test_admin, test_todos):
+        
+        # Send GET request
+        response = admin_client.get("/admin/todos/42")
+        assert response.status_code == status. HTTP_404_NOT_FOUND
+        assert response.json()["detail"] == "Todo not found."
+        
 
 class TestNonAdminUser:
     
