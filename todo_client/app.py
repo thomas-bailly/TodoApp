@@ -2,7 +2,27 @@ import streamlit as st
 import os
 from dotenv import load_dotenv
 
+from todo_client.utils.api_client import APIClient
 
+
+# ==================== Initialize session state variables ==================== #
+if st.session_state.get("auth_token") is None:
+    st.session_state["auth_token"] = None
+    
+if st.session_state.get("login_time") is None:
+    st.session_state["login_time"] = None
+    
+if st.session_state.get("username") is None:
+    st.session_state["username"] = None
+    
+if st.session_state.get("api_client") is None:
+    st.session_state["api_client"] = APIClient()
+
+# ========================= Load environment variables ======================= #
+load_dotenv()
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
+
+# ============================ Home Page Content ============================= #
 def home_page_content():
     """Function to display the content of the home page."""
     
@@ -10,9 +30,6 @@ def home_page_content():
     st.title("Home Page")
     # Description
     st.markdown("Placeholder for home page content.")
-
-load_dotenv()
-API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 
 if __name__ == "__main__":
     # Page config
