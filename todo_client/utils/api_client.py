@@ -67,6 +67,7 @@ class APIClient:
                 self.logout()
                 st.error("Unauthorized access. Please log in again.")
                 st.rerun()  # Rerun to reflect logout
+                return  {"error": "Unauthorized session cleared", "status_code": 401}
             
             # Other HTTP errors
             error_message = e.response.json().get(
