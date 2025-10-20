@@ -1,6 +1,4 @@
 import streamlit as st
-import os
-from dotenv import load_dotenv
 
 from todo_client.utils.api_client import APIClient
 
@@ -13,7 +11,10 @@ if st.session_state.get("login_time") is None:
     
 if st.session_state.get("username") is None:
     st.session_state["username"] = None
-    
+
+if st.session_state.get("login_success") is None:
+    st.session_state["login_success"] = None
+
 if st.session_state.get("api_client") is None:
     st.session_state["api_client"] = APIClient()
 
