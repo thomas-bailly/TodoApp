@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     # Database
     database_url: str = "sqlite:///./todosapp.db"
     
+    # API
+    api_base_url: str = "http://localhost:8000"
+    
     # Security - JWT
     secret_key: str
     algorithm: str = "HS256"
