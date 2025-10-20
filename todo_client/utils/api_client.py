@@ -82,11 +82,35 @@ class APIClient:
             return {"error": "API unreachable", "status_code": 503}
     
     # ---------------------------- Authentication ---------------------------- #
-    def login(self, username: str, password: str):
-        pass
+    def login(self, username: str, password: str) -> dict | bool:
+        """Login a user and store the auth token in session state."""
+        
+        url = "/auth/token"
+        data = {"username": username, "password": password}
+        
+        result = self._request("POST", url, secure=False, data=data)
+
+        if "error" not in result:
+            # Store token and login time in session state
+            st.session_state["auth_token"] = result.get("access_token")
+            st.session_state["login_time"] = datetime.now(timezone.utc).isoformat()
+            st.session_state["username"] = username
+            return True
+        
+        # Return error
+        return False
     
-    def register(self, data: dict[str, Any]):
-        pass
+    def register(self, data: dict[str, Any]) -> dict | bool:
+        """Register a new user."""
+        
+        url = "/auth/register"
+        result = self._request("POST", url, secure=False, json=data)
+        
+        if "error" not in result:
+            return True
+        
+        # Return error
+        return result
     
     def logout(self) -> None:
         """Logout the current user by clearing session state."""
