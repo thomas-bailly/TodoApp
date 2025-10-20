@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 
 from todo_client.utils.api_client import APIClient
 
-
 # ==================== Initialize session state variables ==================== #
 if st.session_state.get("auth_token") is None:
     st.session_state["auth_token"] = None
@@ -18,7 +17,9 @@ if st.session_state.get("username") is None:
 if st.session_state.get("api_client") is None:
     st.session_state["api_client"] = APIClient()
 
-# ============================ Home Page Content ============================= #
+# ============================== Pages Content =============================== #
+from todo_client.pages.login import login_page_content
+
 def home_page_content():
     """Function to display the content of the home page."""
     
@@ -42,7 +43,13 @@ if __name__ == "__main__":
             home_page_content,
             title="Home Page",
             icon="🏠"
+        ),
+        st.Page(
+            login_page_content,
+            title="Login",
+            icon="🔑"
         )
+        
     ]
     
     # Run the App
