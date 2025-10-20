@@ -37,5 +37,6 @@ dev = [
 [tool.poetry]
 name = "todoapp"
 packages = [
-    {include = "todo_api"}
+    {include = "todo_api"},
+    {include = "todo_client"}
 ]
