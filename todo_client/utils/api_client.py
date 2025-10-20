@@ -4,7 +4,7 @@ import streamlit as st
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from todo_client.app import API_BASE_URL
+from todo_client.utils.config import API_BASE_URL
 
 
 ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30)

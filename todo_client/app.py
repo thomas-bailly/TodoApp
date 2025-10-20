@@ -18,10 +18,6 @@ if st.session_state.get("username") is None:
 if st.session_state.get("api_client") is None:
     st.session_state["api_client"] = APIClient()
 
-# ========================= Load environment variables ======================= #
-load_dotenv()
-API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
-
 # ============================ Home Page Content ============================= #
 def home_page_content():
     """Function to display the content of the home page."""
