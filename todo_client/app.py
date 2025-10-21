@@ -1,4 +1,5 @@
 import streamlit as st
+from pathlib import Path
 
 from todo_client.utils.api_client import APIClient
 
@@ -29,6 +30,17 @@ def home_page_content():
     st.title("Home Page")
     # Description
     st.markdown("Placeholder for home page content.")
+    
+# ========================= Logout Handler Function ========================== #
+
+def logout_handler():
+    """Execute logout and redirect to the home page."""
+
+    st.session_state["login_success"] = None
+    client = st.session_state.get("api_client")
+    client.logout()
+    
+    st.switch_page(app_navigation)
 
 if __name__ == "__main__":
     # Page config
@@ -52,7 +64,7 @@ if __name__ == "__main__":
         pages.extend(
             [
                 st.Page(profile_page_content, title="Profile", icon="👤"),
-                st.Page(login_page_content, title="Logout", icon="⬅️")
+                st.Page(logout_handler, title="Logout", icon="⬅️")
             ]
         )
     else:
