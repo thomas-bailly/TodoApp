@@ -51,7 +51,7 @@ class APIClient:
         headers = kwarrgs.pop("headers", {})
         if secure:
             headers.update(self._get_auth_headers())
-            
+
         try:
             # Make the request
             response = self.client.request(method, url, headers=headers, **kwarrgs)
@@ -122,6 +122,6 @@ class APIClient:
     def read_user_me(self) -> dict:
         """Fetch the current user's profile data."""
         
-        url = "/users/me"
+        url = "/user/me"
         result = self._request("GET", url, secure=True)
         return result
