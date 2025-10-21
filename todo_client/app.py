@@ -20,6 +20,7 @@ if st.session_state.get("api_client") is None:
 
 # ============================== Pages Content =============================== #
 from todo_client.pages.login import login_page_content
+from todo_client.pages.profile import profile_page_content
 
 def home_page_content():
     """Function to display the content of the home page."""
@@ -44,14 +45,18 @@ if __name__ == "__main__":
             home_page_content,
             title="Home Page",
             icon="🏠"
-        ),
-        st.Page(
-            login_page_content,
-            title="Login",
-            icon="🔑"
         )
-        
     ]
+    
+    if st.session_state.get("auth_token"):
+        pages.extend(
+            [
+                st.Page(profile_page_content, title="Profile", icon="👤"),
+                st.Page(login_page_content, title="Logout", icon="⬅️")
+            ]
+        )
+    else:
+        pages.append(st.Page(login_page_content, title="Login",icon="🔑"))
     
     # Run the App
     app_navigation = st.navigation(pages=pages, position="sidebar")
