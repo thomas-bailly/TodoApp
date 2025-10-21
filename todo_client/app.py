@@ -1,5 +1,4 @@
 import streamlit as st
-from pathlib import Path
 
 from todo_client.utils.api_client import APIClient
 

@@ -118,3 +118,10 @@ class APIClient:
         for key in keys_to_remove:
             if key in st.session_state:
                 del st.session_state[key]
+                
+    def read_user_me(self) -> dict:
+        """Fetch the current user's profile data."""
+        
+        url = "/users/me"
+        result = self._request("GET", url, secure=True)
+        return result
