@@ -7,7 +7,7 @@ from typing import Any
 from todo_client.utils.config import API_BASE_URL
 
 
-ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30)
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
 
 class APIClient:
     """An API client to interact with the backend server."""
