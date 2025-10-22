@@ -125,3 +125,10 @@ class APIClient:
         url = "/user/me"
         result = self._request("GET", url, secure=True)
         return result
+    
+    def update_user_me(self, data:dict[str, str]) -> dict:
+        """Update the current user's profile data."""
+        
+        url = "/user/me"
+        result = self._request("PUT", url, secure=True, json=data)
+        return result

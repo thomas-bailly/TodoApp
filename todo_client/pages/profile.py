@@ -1,5 +1,5 @@
 import streamlit as st
-
+import time
 
 def profile_page_content() -> None:
     """Render the profile page content."""
@@ -65,7 +65,6 @@ def profile_page_content() -> None:
             
             # Handle submission
             if edit_submitted:
-                st.info("Edit profile feature comming soon 🚧")
                 
                 # Prepare data for request
                 updated_data = {
@@ -73,7 +72,14 @@ def profile_page_content() -> None:
                     and v != user_data.get(f)
                 }
                 
-                #print(updated_data)
+                result = client.update_user_me(updated_data)
+                
+                if "error" in result:
+                    st.error(f"Update failed: {result['error']}")
+                else:
+                    st.success("Profile updated successfully")
+                    time.sleep(1)
+                    st.rerun()
     
     # Change password form            
     with st.expander("✏️ Change Password"):
