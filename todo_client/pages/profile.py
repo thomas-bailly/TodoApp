@@ -91,13 +91,23 @@ def profile_page_content() -> None:
             
             # Handle submission
             if password_submitted:
-                st.info("Change Password feature comming soon 🚧")
                 
                 # Prepare data for request
                 password_data = {
                     "old_password": old_password,
                     "new_password": new_password
                 }
+                
+                result = client.change_password(password_data)
+                
+                if "error" in result:
+                    st.error(f"Update failed: {result['error']}")
+                else:
+                    st.success("Password updated successfully")
+                    time.sleep(1)
+                    client.logout()
+                    st.session_state["login_success"] = None
+                    st.rerun()
                 
     if st.button("Logout", icon="⬅️"):
         client.logout()

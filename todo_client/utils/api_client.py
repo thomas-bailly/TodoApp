@@ -132,3 +132,10 @@ class APIClient:
         url = "/user/me"
         result = self._request("PUT", url, secure=True, json=data)
         return result
+    
+    def change_password(self, data:dict[str, str]) -> dict:
+        """Update the current user's profile data."""
+        
+        url = "/user/me/password"
+        result = self._request("PUT", url, secure=True, json=data)
+        return result
