@@ -21,6 +21,7 @@ if st.session_state.get("api_client") is None:
 # ============================== Pages Content =============================== #
 from todo_client.pages.login import login_page_content
 from todo_client.pages.profile import profile_page_content
+from todo_client.pages.todos import todos_page_content
 
 def home_page_content():
     """Function to display the content of the home page."""
@@ -63,6 +64,7 @@ if __name__ == "__main__":
         pages.extend(
             [
                 st.Page(profile_page_content, title="Profile", icon="👤"),
+                st.Page(todos_page_content, title="Todos", icon="📝"),
                 st.Page(logout_handler, title="Logout", icon="⬅️")
             ]
         )
