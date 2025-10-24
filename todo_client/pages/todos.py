@@ -1,36 +1,75 @@
 import streamlit as st
 
-def todos_page_content() -> None:
-    """Render the todos page content."""
+
+def verify_error(result: list[dict] | dict) -> bool:
+    """Check API result and display any error message."""
+    if not isinstance(result, dict):
+        return False
     
+    status_code = result.get("status_code")
+    st.error(f"Error: {result.get('error')} [status code: {status_code}]")
+    if status_code == 401:
+        st.warning("Expired session. Please log in again.")
+    return True
+
+
+def todos_page_content():
+    st.title("🗒️ Todos")
+
     client = st.session_state["api_client"]
-    st.title("📝 Todos")
-    
-    result = client.read_all_todos()
-    if isinstance(result, dict):
-        status_code = result.get("status_code")
-        st.error(f"Error: {result.get("error")} [status code: {status_code}]")
-        if status_code == 401:
-            st.warning("Expired session. Please log in again.")
-    
+
+    # --- Persist filters between runs ---
+    if "todos_filters" not in st.session_state:
+        st.session_state.todos_filters = {"complete": None, "search": None}
+
+    filters = st.session_state.todos_filters
+
+    # --- UI Filters ---
+    col1, col2, col3, col4 = st.columns([1, 2, 1, 1], vertical_alignment="bottom")
+
+    with col1:
+        complete_opt = st.selectbox(
+            "Status",
+            options=["--", True, False],
+            format_func=lambda x: "Complete" if x is True else ("Incomplete" if x is False else "--"),
+            index=["--", True, False].index(filters["complete"] if filters["complete"] is not None else "--"),
+        )
+
+    with col2:
+        search_opt = st.text_input("Search", value=filters["search"] or "",
+                                   help="Search todos by title or description")
+
+    with col3:
+        if st.button("Filter", use_container_width=True):
+            complete = None if complete_opt == "--" else complete_opt
+            search = search_opt.strip() or None if search_opt else None
+
+            if complete is None and search is None:
+                st.warning("No filter options selected.")
+            else:
+                st.session_state.todos_filters = {"complete": complete, "search": search}
+                st.rerun()
+
+    with col4:
+        if st.button("Reset", use_container_width=True):
+            st.session_state.todos_filters = {"complete": None, "search": None}
+            st.rerun()
+
+    # --- Fetch data ---
+    st.divider()
+
+    with st.spinner("Loading todos..."):
+        result = client.read_all_todos(**filters)
+        if verify_error(result):
+            return
+
+    st.subheader(f"Todos : {len(result)}")
+
     if not result:
         st.info("Congratulations! You don't have any more tasks to complete.")
         return
-    
-    st.header(f"Your Todos ({len(result)})")
-    st.markdown("---")
-    col1, col2, col3 = st.columns(3, vertical_alignment="bottom")
-    
-    with col1:
-        complete_opt = st.selectbox("Complete", ["--", False, True])
-        
-    with col2:
-        search_opt = st.text_input("Start with:", help="Search todos by title or description")
-    
-    with col3:
-        if st.button("Filter", width=100):
-            st.info("Filter feature comming soon")
-    
+
+    # --- Display ---
     for i, todo in enumerate(result):
         
         extender_text = f"**{todo.get('title')}** - Priority: **{todo.get('priority')}**"
@@ -40,8 +79,8 @@ def todos_page_content() -> None:
         with st.expander(extender_text, icon=extender_icon):
             st.write(f"**Description:** {todo.get('description')}")
             
-            ext_col1, ext_col2 = st.columns(2)
-            with ext_col1:
-                st.button("Edit", key=f"edit_{i}", width=200)
-            with ext_col2:
-                st.button("Delete", key=f"delete_{i}", width=200)
+            extender_col1, extender_col2 = st.columns(2, width=250)
+            with extender_col1:
+                edit_button = st.button("Edit", key=f"edit_{i}", width=100)
+            with extender_col2:
+                delete_button = st.button("Delete", key=f"delete_{i}", width=100)
