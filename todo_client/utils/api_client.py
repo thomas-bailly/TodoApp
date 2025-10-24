@@ -139,3 +139,10 @@ class APIClient:
         url = "/user/me/password"
         result = self._request("PUT", url, secure=True, json=data)
         return result
+    
+    def read_all_todos(self, complete: bool | None = None,
+                       search: str | None = None) -> list[dict] | dict:
+        
+        url = "/todos"
+        result = self._request("GET", url, secure=True)
+        return result
