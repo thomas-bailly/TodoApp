@@ -142,7 +142,17 @@ class APIClient:
     
     def read_all_todos(self, complete: bool | None = None,
                        search: str | None = None) -> list[dict] | dict:
+        """Fetch all todos with optional filters for completion status or 
+        search query.
+        """
         
         url = "/todos"
-        result = self._request("GET", url, secure=True)
+        
+        params = {}
+        if complete is not None:
+            params["complete"] = complete
+        if search is not None:
+            params["search"] = search
+        
+        result = self._request("GET", url, secure=True, params=params)
         return result
