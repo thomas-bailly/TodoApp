@@ -84,3 +84,29 @@ def todos_page_content():
                 edit_button = st.button("Edit", key=f"edit_{i}", width=100)
             with extender_col2:
                 delete_button = st.button("Delete", key=f"delete_{i}", width=100)
+                
+            if edit_button:
+                with st.form(f"edit_form_{i}"):
+                    
+                    fields = {
+                        "title":st.text_input("Title", value=todo.get('title', "")),
+                        "description":st.text_area(
+                            "Description", value=todo.get('description', ""),
+                            max_chars=250
+                        ),
+                        "priority":st.slider("Priority", min_value=1, max_value=5,
+                                             value=todo.get('priority')),
+                        "complete":st.checkbox("Completed",
+                                               value=todo.get('complete', False))
+                    }
+                    
+                    submitted = st.form_submit_button("Save changes")
+                    
+                    if submitted:
+                        updated_data = {}
+                        for f, v in fields.items():
+                            if isinstance(v, str):
+                                if (v.strip() != "") and (v != todo.get(f)):
+                                    updated_data[f] = v
+                            elif v != todo.get(f):
+                                updated_data[f] = v
