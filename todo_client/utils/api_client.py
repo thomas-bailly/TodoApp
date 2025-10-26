@@ -156,3 +156,10 @@ class APIClient:
         
         result = self._request("GET", url, secure=True, params=params)
         return result
+    
+    def update_todo(self, todo_id: int, data: dict[str: Any]) -> dict:
+        
+        url = f"/todos/{todo_id}"
+        result = self._request("PUT", url, secure=True, json=data)
+        
+        return result
