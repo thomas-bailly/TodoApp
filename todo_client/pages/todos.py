@@ -15,11 +15,36 @@ def verify_error(result: list[dict] | dict) -> bool:
         st.warning("Expired session. Please log in again.")
     return True
 
+@st.dialog("Add Todo")
+def add_todo_dialog():
+    data = {
+        "title":st.text_input("Title", value="", max_chars=100,
+                              help="minimum 3 characters"),
+        "description":st.text_area(
+            "Description", value="", max_chars=250
+        ),
+        "priority":st.slider("Priority", min_value=1, max_value=5,
+                             value=3),
+        "complete":st.checkbox("Completed", value=False)
+    }
+    
+    if st.button("Submit"):
+        result = client.create_todo(data=data)
+        
+        if "error" in result:
+            st.error(f"Creation failed: {result['error']}")
+        else:
+            st.success(result["message"])
+            time.sleep(0.5)
+            st.session_state.pop("todos_data", None)
+            st.rerun()
+
 @st.dialog("Edit Todo")
 def edit_todo_dialog(todo):
     
     fields = {
-        "title":st.text_input("Title", value=todo.get('title', "")),
+        "title":st.text_input("Title", value=todo.get('title', ""), max_chars=100,
+                              help="minimum 3 characters"),
         "description":st.text_area(
             "Description", value=todo.get('description', ""),
             max_chars=250
@@ -105,7 +130,12 @@ def todos_page_content():
 
     result = st.session_state["todos_data"]
     
-    st.subheader(f"Todos : {len(result)}")
+    sub_col1, sub_col2 = st.columns([5, 1], vertical_alignment="bottom")
+    with sub_col1:
+        st.subheader(f"Todos : {len(result)}")
+    with sub_col2:
+        if st.button("Add", use_container_width=True):
+            add_todo_dialog()
 
     if not result:
         st.info("Congratulations! You don't have any more tasks to complete.")
