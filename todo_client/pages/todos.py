@@ -1,5 +1,8 @@
 import streamlit as st
+import time
 
+
+client = st.session_state["api_client"]
 
 def verify_error(result: list[dict] | dict) -> bool:
     """Check API result and display any error message."""
@@ -12,11 +15,43 @@ def verify_error(result: list[dict] | dict) -> bool:
         st.warning("Expired session. Please log in again.")
     return True
 
+@st.dialog("Edit Todo")
+def edit_todo_dialog(todo):
+    
+    fields = {
+        "title":st.text_input("Title", value=todo.get('title', "")),
+        "description":st.text_area(
+            "Description", value=todo.get('description', ""),
+            max_chars=250
+        ),
+        "priority":st.slider("Priority", min_value=1, max_value=5,
+                             value=todo.get('priority')),
+        "complete":st.checkbox("Completed",
+                               value=todo.get('complete', False))
+    }
+    
+    if st.button("Save changes"):
+        updated_data = {}
+        for f, v in fields.items():
+            if isinstance(v, str):
+                if (v.strip() != "") and (v != todo.get(f)):
+                    updated_data[f] = v
+            elif v != todo.get(f):
+                updated_data[f] = v
+                 
+        result = client.update_todo(todo_id=todo.get('id'),
+                                        data=updated_data)
+                        
+        if "error" in result:
+            st.error(f"Update failed: {result['error']}")
+        else:
+            st.success(result["message"])
+            time.sleep(0.5)
+            st.session_state.pop("todos_data", None)
+            st.rerun()
 
 def todos_page_content():
     st.title("🗒️ Todos")
-
-    client = st.session_state["api_client"]
 
     # --- Persist filters between runs ---
     if "todos_filters" not in st.session_state:
@@ -48,21 +83,28 @@ def todos_page_content():
                 st.warning("No filter options selected.")
             else:
                 st.session_state.todos_filters = {"complete": complete, "search": search}
+                st.session_state.pop("todos_data", None)
                 st.rerun()
 
     with col4:
         if st.button("Reset", use_container_width=True):
             st.session_state.todos_filters = {"complete": None, "search": None}
+            st.session_state.pop("todos_data", None)
             st.rerun()
 
     # --- Fetch data ---
     st.divider()
 
-    with st.spinner("Loading todos..."):
-        result = client.read_all_todos(**filters)
-        if verify_error(result):
-            return
+    if "todos_data" not in st.session_state:
+        with st.spinner("Loading todos..."):
+            result = client.read_all_todos(**filters)
+            if verify_error(result):
+                return
+            
+            st.session_state["todos_data"] = result
 
+    result = st.session_state["todos_data"]
+    
     st.subheader(f"Todos : {len(result)}")
 
     if not result:
@@ -81,32 +123,8 @@ def todos_page_content():
             
             extender_col1, extender_col2 = st.columns(2, width=250)
             with extender_col1:
-                edit_button = st.button("Edit", key=f"edit_{i}", width=100)
+                if st.button("Edit", key=f"edit_{i}", width=100):
+                    edit_todo_dialog(todo)
+                
             with extender_col2:
                 delete_button = st.button("Delete", key=f"delete_{i}", width=100)
-                
-            if edit_button:
-                with st.form(f"edit_form_{i}"):
-                    
-                    fields = {
-                        "title":st.text_input("Title", value=todo.get('title', "")),
-                        "description":st.text_area(
-                            "Description", value=todo.get('description', ""),
-                            max_chars=250
-                        ),
-                        "priority":st.slider("Priority", min_value=1, max_value=5,
-                                             value=todo.get('priority')),
-                        "complete":st.checkbox("Completed",
-                                               value=todo.get('complete', False))
-                    }
-                    
-                    submitted = st.form_submit_button("Save changes")
-                    
-                    if submitted:
-                        updated_data = {}
-                        for f, v in fields.items():
-                            if isinstance(v, str):
-                                if (v.strip() != "") and (v != todo.get(f)):
-                                    updated_data[f] = v
-                            elif v != todo.get(f):
-                                updated_data[f] = v
