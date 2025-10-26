@@ -169,3 +169,10 @@ class APIClient:
         result = self._request("PUT", url, secure=True, json=data)
         
         return result
+    
+    def delete_todo(self, todo_id: int) -> dict:
+        
+        url = f"/todos/{todo_id}"
+        result = self._request("DELETE", url, secure=True)
+        
+        return result
