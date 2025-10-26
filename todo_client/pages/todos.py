@@ -75,6 +75,16 @@ def edit_todo_dialog(todo):
             st.session_state.pop("todos_data", None)
             st.rerun()
 
+def delete_todo(todo):
+    result = client.delete_todo(todo_id=todo.get('id'))
+    if "error" in result:
+        st.error(f"Deletion failed: {result['error']}")
+    else:
+        st.success("Todo deleted successfully.")
+        time.sleep(0.5)
+        st.session_state.pop("todos_data", None)
+        st.rerun()
+
 def todos_page_content():
     st.title("🗒️ Todos")
 
@@ -157,4 +167,5 @@ def todos_page_content():
                     edit_todo_dialog(todo)
                 
             with extender_col2:
-                delete_button = st.button("Delete", key=f"delete_{i}", width=100)
+                if st.button("Delete", key=f"delete_{i}", width=100):
+                    delete_todo(todo)
