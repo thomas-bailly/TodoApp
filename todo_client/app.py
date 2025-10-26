@@ -11,6 +11,9 @@ if st.session_state.get("login_time") is None:
     
 if st.session_state.get("username") is None:
     st.session_state["username"] = None
+    
+if st.session_state.get("user_role") is None:
+    st.session_state["user_role"] = None
 
 if st.session_state.get("login_success") is None:
     st.session_state["login_success"] = None
@@ -68,6 +71,10 @@ if __name__ == "__main__":
                 st.Page(logout_handler, title="Logout", icon="⬅️")
             ]
         )
+        
+        if st.session_state.get("user_role") == "admin":
+            st.write("Admin")
+        
     else:
         pages.append(st.Page(login_page_content, title="Login",icon="🔑"))
     

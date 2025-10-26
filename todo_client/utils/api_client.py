@@ -3,6 +3,7 @@ import os
 import streamlit as st
 from datetime import datetime, timedelta, timezone
 from typing import Any
+from jose import jwt, JWTError
 
 from todo_client.utils.config import API_BASE_URL
 
@@ -43,6 +44,18 @@ class APIClient:
         expiration_time = login_time + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         
         return datetime.now(timezone.utc) > expiration_time
+    
+    def _decode_access_token_role(self, token: str) -> str:
+        
+        try:
+            payload = jwt.decode(token, options={"verify_signature":False},
+                                 key=None)
+
+            return payload.get("role")
+        except JWTError as e:
+            raise f"error decoding token: {str(e)}"
+        except Exception as e:
+            raise f"error unexpected: {str(e)}"
     
     def _request(self, method: str, url: str, secure: bool, **kwarrgs) -> dict:
         """Generic method to make API requests."""
@@ -92,7 +105,10 @@ class APIClient:
 
         if "error" not in result:
             # Store token and login time in session state
-            st.session_state["auth_token"] = result.get("access_token")
+            token = result.get("access_token")
+            role = self._decode_access_token_role(token)
+            st.session_state["user_role"] = role
+            st.session_state["auth_token"] = token
             st.session_state["login_time"] = datetime.now(timezone.utc).isoformat()
             st.session_state["username"] = username
             return True
@@ -114,7 +130,7 @@ class APIClient:
     
     def logout(self) -> None:
         """Logout the current user by clearing session state."""
-        keys_to_remove = ["auth_token", "login_time", "username", "user_data"]
+        keys_to_remove = ["auth_token", "login_time", "username", "user_role"]
         for key in keys_to_remove:
             if key in st.session_state:
                 del st.session_state[key]
