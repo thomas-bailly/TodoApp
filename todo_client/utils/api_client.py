@@ -140,6 +140,12 @@ class APIClient:
         result = self._request("PUT", url, secure=True, json=data)
         return result
     
+    def create_todo(self, data: dict[str: Any]) -> dict:
+        
+        url = "/todos"
+        result = self._request("POST", url, secure=True, json=data)
+        return result
+    
     def read_all_todos(self, complete: bool | None = None,
                        search: str | None = None) -> list[dict] | dict:
         """Fetch all todos with optional filters for completion status or 
