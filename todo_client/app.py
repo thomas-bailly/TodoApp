@@ -25,6 +25,7 @@ if st.session_state.get("api_client") is None:
 from todo_client.pages.login import login_page_content
 from todo_client.pages.profile import profile_page_content
 from todo_client.pages.todos import todos_page_content
+from todo_client.pages.admin import admin_page_content
 
 def home_page_content():
     """Function to display the content of the home page."""
@@ -73,7 +74,7 @@ if __name__ == "__main__":
         )
         
         if st.session_state.get("user_role") == "admin":
-            st.write("Admin")
+            pages.append(st.Page(admin_page_content, icon="🛡️", title="Admin"))
         
     else:
         pages.append(st.Page(login_page_content, title="Login",icon="🔑"))
