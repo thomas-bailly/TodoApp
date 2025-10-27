@@ -108,8 +108,3 @@ def profile_page_content() -> None:
                     client.logout()
                     st.session_state["login_success"] = None
                     st.rerun()
-                
-    if st.button("Logout", icon="⬅️"):
-        client.logout()
-        st.session_state["login_success"] = None
-        st.rerun()
