@@ -147,9 +147,17 @@ def todos_page_content():
         if st.button("Add", use_container_width=True):
             add_todo_dialog()
 
-    if not result:
-        st.info("Congratulations! You don't have any more tasks to complete.")
-        return
+    if (not result) and (filters["complete"] is None) and (filters["search"] is None):
+        st.info("No todos found. Add your first todo!")
+    
+    elif (not result) and (filters["complete"] is True):
+        st.info("No completed todos found with the current filters.")
+    
+    elif (not result) and (filters["complete"] is False):
+        st.info("Congratulations! You have no pending todos.")
+    
+    elif (not result) and (filters["search"] is not None):
+        st.info("No todos match the search pattern.")
 
     # --- Display ---
     for i, todo in enumerate(result):
