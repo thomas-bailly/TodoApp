@@ -208,3 +208,10 @@ class APIClient:
         result = self._request("GET", url, secure=True, params=params)
         
         return result
+    
+    def read_user_by_id(self, user_id: int) -> dict:
+        
+        url = f"/admin/users/{user_id}"
+        result = self._request("GET", url, secure=True)
+        
+        return result
