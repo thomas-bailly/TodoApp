@@ -192,3 +192,19 @@ class APIClient:
         result = self._request("DELETE", url, secure=True)
         
         return result
+    
+    def read_all_users(self, role: str | None = None, 
+                       username: str | None = None,
+                       is_active: bool | None = None) -> list[dict] | dict:
+        
+        url = "/admin/users"
+        params = {}
+        if role is not None:
+            params["role"] = role
+        if username is not None:
+            params["username"] = username
+        if is_active is not None:
+            params["is_active"] = is_active
+        result = self._request("GET", url, secure=True, params=params)
+        
+        return result
