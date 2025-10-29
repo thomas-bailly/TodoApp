@@ -156,6 +156,12 @@ class APIClient:
         result = self._request("PUT", url, secure=True, json=data)
         return result
     
+    def delete_user_me(self) -> dict:
+        
+        url = "/user/me"
+        result = self._request("DELETE", url, secure=True)
+        return result
+    
     def create_todo(self, data: dict[str: Any]) -> dict:
         
         url = "/todos"
