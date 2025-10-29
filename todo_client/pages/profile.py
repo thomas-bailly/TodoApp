@@ -1,11 +1,41 @@
 import streamlit as st
 import time
 
+
+client = st.session_state["api_client"]
+
+@st.dialog("Delete Account")
+def delete_account_dialog():
+    """Dialog to confirm account deletion."""
+    
+    st.warning("Are you sure you want to delete your account? This action is irreversible.")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Yes, delete my account"):
+            result = client.delete_user_me()
+            
+            if "error" in result:
+                st.error(f"Account deletion failed: {result['error']}")
+            else:
+                st.success("Your account has been deleted successfully.")
+                time.sleep(1)
+                client.logout()
+                st.session_state["login_success"] = None
+                st.rerun()
+    with col2:
+        if st.button("Cancel"):
+            st.info("Account deletion cancelled.")
+            st.session_state["show_delete_account_dialog"] = False
+            st.rerun()
+
 def profile_page_content() -> None:
     """Render the profile page content."""
     
-    client = st.session_state["api_client"]
     st.title("👤 Profile")
+    
+    if "show_delete_account_dialog" not in st.session_state:
+        st.session_state["show_delete_account_dialog"] = False
     
     # Fetch user's profile data
     user_data = client.read_user_me()
@@ -108,3 +138,10 @@ def profile_page_content() -> None:
                     client.logout()
                     st.session_state["login_success"] = None
                     st.rerun()
+                    
+    # Delete account
+    if st.button("Delete my account", key="delete_account_button"):
+        st.session_state["show_delete_account_dialog"] = True
+    
+    if st.session_state["show_delete_account_dialog"]:
+        delete_account_dialog()
