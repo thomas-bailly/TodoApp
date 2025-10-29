@@ -192,3 +192,64 @@ def admin_page_content():
             
             if st.session_state["show_delete_user_by_id_dialog"]:
                 delete_user_by_id_dialog(user_id_input)
+    
+    with tab3:
+        select_col1, select_col2, select_col3 = st.columns(
+            3, vertical_alignment="bottom"
+        )
+        with select_col1:
+            mode_opt = st.selectbox(
+                "Mode",
+                options=["User ID", "Todo ID"],
+                key="admin_todo_mode"
+            )
+            
+        with select_col2:
+            id_input = st.number_input(
+                f"{mode_opt}",
+                value=None,
+                step=1,
+                key="admin_todo_id_input",
+                help=f"Enter the {mode_opt} to fetch todos."
+            )
+        
+        with select_col3:
+            fetch_button = st.button("Fetch Todos", use_container_width=True)
+        
+        if fetch_button:
+            if id_input is None:
+                    st.warning(f"Please provide a {mode_opt}.")
+                
+            elif mode_opt == "User ID":
+                result_todos = client.read_user_todos_admin(id_input)
+                if verify_error(result_todos):
+                    return
+                    
+                st.divider()
+                st.subheader(f"Todos for User ID `{id_input}`")
+                        
+                if not result_todos:
+                    st.info("No todos found for this user.")
+                        
+                for i, todo in enumerate(result_todos):
+                    extender_text = f"**{todo.get('title')}** - Priority: **{todo.get('priority')}**"
+                    extender_text += f" (ID: {todo.get('id')})"
+                    extender_icon = "✅" if todo.get('complete') is True else "⏳"
+                            
+                    with st.expander(extender_text, icon=extender_icon):
+                        st.markdown(f"**Description:** {todo.get('description')}")
+                
+            elif mode_opt == "Todo ID":
+                result_todo = client.read_todo_by_id_admin(id_input)
+                if verify_error(result_todo):
+                    return
+                    
+                st.divider()
+                st.subheader(f"Todo Details for Todo ID `{id_input}`")
+                    
+                st.markdown(f"**Title:** {result_todo.get('title')}")
+                st.markdown(f"**Description:** {result_todo.get('description')}")
+                st.markdown(f"**Priority:** {result_todo.get('priority')}")
+                st.markdown(f"**Complete:** {result_todo.get('complete')}")
+                st.markdown(f"**Owner ID:** {result_todo.get('owner_id')}")
+                st.markdown(f"**ID:** {result_todo.get('id')}")
