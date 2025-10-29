@@ -148,4 +148,18 @@ def admin_page_content():
                     }
                     # Submit button
                     if st.form_submit_button("Update User"):
-                        st.info("Work in progress...")
+                        updated_data = {}
+                        for f,v in fields.items():
+                            if v != result.get(f):
+                                updated_data[f] = v
+                    
+                        if not updated_data:
+                            st.info("No changes detected.")
+                        else:
+                            result = client.update_user_by_id(user_id_input,
+                                                              updated_data)
+                            if verify_error(result):
+                                return
+                            st.success("User updated successfully.")
+                            st.session_state.pop("fetched_user", None)
+                            st.rerun()
