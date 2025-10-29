@@ -235,3 +235,17 @@ class APIClient:
         result = self._request("DELETE", url, secure=True)
         
         return result
+    
+    def read_todo_by_id_admin(self, todo_id: int) -> dict:
+        
+        url = f"/admin/todos/{todo_id}"
+        result = self._request("GET", url, secure=True)
+        
+        return result
+    
+    def read_user_todos_admin(self, user_id: int) -> list[dict] | dict:
+        
+        url = f"/admin/users/{user_id}/todos"
+        result = self._request("GET", url, secure=True)
+        
+        return result
