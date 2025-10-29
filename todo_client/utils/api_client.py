@@ -221,3 +221,10 @@ class APIClient:
         result = self._request("GET", url, secure=True)
         
         return result
+    
+    def update_user_by_id(self, user_id: int, data: dict[str, Any]) -> dict:
+        
+        url = f"/admin/users/{user_id}"
+        result = self._request("PUT", url, secure=True, json=data)
+        
+        return result
