@@ -228,3 +228,10 @@ class APIClient:
         result = self._request("PUT", url, secure=True, json=data)
         
         return result
+    
+    def delete_user_by_id(self, user_id: int) -> dict:
+        
+        url = f"/admin/users/{user_id}"
+        result = self._request("DELETE", url, secure=True)
+        
+        return result
