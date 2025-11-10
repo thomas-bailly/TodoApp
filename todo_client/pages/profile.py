@@ -55,14 +55,14 @@ def profile_page_content() -> None:
     info_col1, info_col2 = st.columns(2)
     
     with info_col1:
-        st.markdown(f"**Username:** {user_data.get("username")}")
-        st.markdown(f"**First name:** {user_data.get("first_name")}")
-        st.markdown(f"**Email**: {user_data.get("email")}")
+        st.markdown(f"**Username:** {user_data.get('username')}")
+        st.markdown(f"**First name:** {user_data.get('first_name')}")
+        st.markdown(f"**Email**: {user_data.get('email')}")
         
     with info_col2:
-        st.markdown(f"**Role:** {user_data.get("role")}")
-        st.markdown(f"**Last name:** {user_data.get("last_name")}")
-        st.markdown(f"**Phone number:** {user_data.get("phone_number")}")
+        st.markdown(f"**Role:** {user_data.get('role')}")
+        st.markdown(f"**Last name:** {user_data.get('last_name')}")
+        st.markdown(f"**Phone number:** {user_data.get('phone_number')}")
         
     st.markdown("----")
     
